@@ -4,7 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-    role = models.CharField(max_length=64)
+    class Role(models.TextChoices):
+        MAINTAINER = 'maintainer', 'Maintainer'
+        DEVELOPER = 'developer', 'Developer'
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.DEVELOPER)
 
 
 class Project(models.Model):
@@ -20,7 +23,7 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
     deadline = models.DateTimeField()
-    users = models.ManyToManyField(User)
+    owner = models.ManyToManyField(User)
     created_at = models.DateTimeField(auto_now_add=True)
     assignees = models.TextField(blank=True)
 
@@ -38,18 +41,11 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
 
 
-class StaffLogin(models.Model):
-    staff = models.ForeignKey(
-        User,
-        verbose_name=_("Staff"),
-        on_delete=models.CASCADE,
-        related_name='user_stafflogin',
-        limit_choices_to={'is_staff': True},
-    )
+class AccountLogin(models.Model):
+    account = models.ForeignKey(User, on_delete=models.CASCADE)
+    session_key = models.CharField(max_length=40, verbose_name="Session Key")
 
-    session_key = models.CharField(
-        max_length=40,
-        verbose_name=_("Session Key"),
-    )
+
+
 
 

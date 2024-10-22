@@ -1,5 +1,5 @@
 """
-URL configuration for Exam_8 project.
+URL configuration for config project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -16,7 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.urls.conf import include
+from graphene_django.views import GraphQLView
+
+from config.swagger import swagger_patterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('graphql/', GraphQLView.as_view(graphiql=True)),
+    path('', include('exam.urls'))
 ]
+urlpatterns += swagger_patterns
