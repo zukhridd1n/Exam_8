@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
@@ -13,9 +12,9 @@ class User(AbstractUser):
 class Project(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField()
-    owner = models.ManyToManyField(User)
+    owner = models.ForeignKey(User,  on_delete=models.CASCADE, related_name='projects')
     created_at = models.DateTimeField(auto_now_add=True)
-    assignees = models.TextField(blank=True)
+    assignees = models.ManyToManyField(User)
 
 class Task(models.Model):
     name = models.CharField(max_length=64)
@@ -23,9 +22,9 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
     deadline = models.DateTimeField()
-    owner = models.ManyToManyField(User)
+    owner = models.ForeignKey(User,  on_delete=models.CASCADE, related_name='tasks')
     created_at = models.DateTimeField(auto_now_add=True)
-    assignees = models.TextField(blank=True)
+    assignees = models.ManyToManyField(User)
 
 class Comment(models.Model):
     text = models.TextField()
