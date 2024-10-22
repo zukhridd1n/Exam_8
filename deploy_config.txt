@@ -1,0 +1,46 @@
+/etc/systemd/system/exam.service
+
+[Unit]
+Description=exam project
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/var/www/projects/exam
+ExecStart=/var/www/projects/exam/.venv/bin/gunicorn --workers 1 --bind unix:/var/www/projects/exam/exam.sock config.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+systemctl start exam.service
+systemctl enable exam.service
+systemctl status exam.service
+
+/etc/nginx/sites-available/exam.conf
+nginx settings:
+
+server {
+    listen       80;
+    server_name  15.213.234.211;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location /static/ {
+        root /var/www/projects/exam;
+    }
+
+    location /media/ {
+        root /var/www/projects/exam;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/var/www/projects/exam/exam.sock;
+    }
+}
+
+ln -s /etc/nginx/sites-available/exam.conf /etc/nginx/sites-enabled/
+
+systemctl restart nginx.service
+systemctl restart exam.service
